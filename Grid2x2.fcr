@@ -1,0 +1,108 @@
+/* Grid with robots mapping the environment */
+
+// Parameters
+// Grid size
+const N : nat is 2
+// Number of robots
+const C : nat is 2
+
+
+// Grid index limit
+const L : nat is N-1 
+// Grid index type
+type posIndex is 0..L
+// Robot index type
+type rIndex is 0..(C-1)
+// Robot position type
+type pos is record x : posIndex, y : posIndex end
+// Initial robot positions
+const RP : array C of pos is [  {x = 1, y = 0}, 
+                                {x = 0, y = 1}]
+
+process Robot(&G : read write array N of array N of nat, &R : read write array C of pos, i : rIndex) is
+    states move
+
+    from move select
+           on R[i].x > 0 and G[ R[i].y ][ R[i].x - 1 ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y ][ R[i].x - 1 ] := 1; R[i].x := R[i].x - 1; to move 
+        [] on R[i].x < L and G[ R[i].y ][ R[i].x + 1 ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y ][ R[i].x + 1 ] := 1; R[i].x := R[i].x + 1; to move 
+        [] on R[i].y > 0 and G[ R[i].y - 1 ][ R[i].x ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y - 1 ][ R[i].x ] := 1; R[i].y := R[i].y - 1; to move 
+        [] on R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y + 1 ][ R[i].x ] := 1; R[i].y := R[i].y + 1; to move 
+    end
+
+process RobotM(&G : array N of array N of nat, &V : array N of array N of nat, &M : nat, &R : array C of pos, i : rIndex) is
+    states move
+
+    from move select
+           on R[i].x > 0 and G[ R[i].y ][ R[i].x - 1 ] = 0 and V[ R[i].y ][ R[i].x - 1 ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y ][ R[i].x - 1 ] := 1; V[ R[i].y ][ R[i].x - 1 ] := 1; R[i].x := R[i].x - 1; M := M + 1; to move 
+        [] on R[i].x < L and G[ R[i].y ][ R[i].x + 1 ] = 0 and V[ R[i].y ][ R[i].x + 1 ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y ][ R[i].x + 1 ] := 1; V[ R[i].y ][ R[i].x + 1 ] := 1; R[i].x := R[i].x + 1; M := M + 1; to move 
+        [] on R[i].y > 0 and G[ R[i].y - 1 ][ R[i].x ] = 0 and V[ R[i].y - 1 ][ R[i].x ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y - 1 ][ R[i].x ] := 1; V[ R[i].y - 1 ][ R[i].x ] := 1; R[i].y := R[i].y - 1; M := M + 1; to move 
+        [] on R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0 and V[ R[i].y + 1 ][ R[i].x ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y + 1 ][ R[i].x ] := 1; V[ R[i].y + 1 ][ R[i].x ] := 1; R[i].y := R[i].y + 1; M := M + 1; to move 
+    end
+
+process RobotBV(&G : array N of array N of nat, &P : array C of pos, &R : array C of pos, i : rIndex) is
+    states move
+
+    from move select
+           on R[i].x > 0 and G[ R[i].y ][ R[i].x - 1 ] = 0 and ((R[i].x - 1) <> P[i].x or R[i].y <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y ][ R[i].x - 1 ] := 1;
+                P[i] := R[i];
+                R[i].x := R[i].x - 1;
+                to move 
+        [] on R[i].x < L and G[ R[i].y ][ R[i].x + 1 ] = 0 and ((R[i].x + 1) <> P[i].x or R[i].y <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y ][ R[i].x + 1 ] := 1; 
+                P[i] := R[i];
+                R[i].x := R[i].x + 1; 
+                to move 
+        [] on R[i].y > 0 and G[ R[i].y - 1 ][ R[i].x ] = 0 and (R[i].x <> P[i].x or (R[i].y - 1) <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y - 1 ][ R[i].x ] := 1; 
+                P[i] := R[i];
+                R[i].y := R[i].y - 1; 
+                to move 
+        [] on R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0 and (R[i].x <> P[i].x or (R[i].y + 1) <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y + 1 ][ R[i].x ] := 1; 
+                P[i] := R[i];
+                R[i].y := R[i].y + 1; 
+                to move 
+    end
+
+
+component Mapping is
+    var r : rIndex := 0, // Robots counter
+        i : posIndex := 0, // Lines counter
+        j : posIndex := 0, // Collumns counter
+        R : array C of pos := RP, // List of robots
+        G : array N of array N of nat, // Grid of exclusion
+        V : array N of array N of nat, // Grid of visited
+        P : array C of pos := RP, // List of robots in last event
+        M : nat := C // Visited cells
+    
+    init 
+        foreach i do 
+            foreach j do
+                G[i][j] := 0;
+                V[i][j] := 0
+            end
+        end;
+        foreach r do
+            G[ R[r].y ][ R[r].x ] := 1;
+            V[ R[r].y ][ R[r].x ] := 1
+        end
+
+    par 
+        /*
+            Robot (&G, &R, 0)
+        ||  Robot (&G, &R, 1) 
+        */
+        /*
+            RobotM (&G, &V, &M, &R, 0)
+        ||  RobotM (&G, &V, &M, &R, 1) 
+        */
+            RobotBV (&G, &P, &R, 0)
+        ||  RobotBV (&G, &P, &R, 1)    
+    end
+
+Mapping

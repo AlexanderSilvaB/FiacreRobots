@@ -1,0 +1,33 @@
+;output quiet; 
+infix y follows x = [] (x => <>y);
+infix x leadsTo y = [] (x => <>y);
+infix x after y = [] (y => ( () x ) );
+op noRepeat x = [] ( ( - ( x ) ) \/ ( x leadsTo -( x ) ) );
+op repeat x = [] ( x =>  <>( () x ) );
+op mutex x = [] - x
+
+
+[] - dead;
+-(<>( ( {Mapping_1_vR.at[0].x} = {Mapping_1_vR.at[1].x} ) /\ ( {Mapping_1_vR.at[0].y} = {Mapping_1_vR.at[1].y} ) ));
+mutex ( {Mapping_1_vR.at[0].x} = {Mapping_1_vR.at[1].x} ) /\ ( {Mapping_1_vR.at[0].y} = {Mapping_1_vR.at[1].y} );
+
+;([] ({Mapping_1_vG.at[0].at[0]} => ()(<>{Mapping_1_vG.at[0].at[0]} )));
+;{Mapping_1_vG.at[0].at[0]}U((<>{Mapping_1_vG.at[0].at[0]}));
+;([]{Mapping_1_vG.at[0].at[0]}U((<>{Mapping_1_vG.at[0].at[0]})));
+;[]({Mapping_1_vG.at[0].at[0]}U(()(<>{Mapping_1_vG.at[0].at[0]})));
+
+;-(<>({Mapping_1_vV.at[0].at[0]} gt 1));
+
+;-(<>(Mapping_1_vM gt 4));
+
+<> () ( ( -({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) \/ -({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y}) ) );
+
+() <> ( ( -({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) \/ -({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y}) ) );
+
+;(({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) /\ ({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y})) leadsTo ( () (({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) /\ ({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y})) );
+
+noRepeat (({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) /\ ({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y}));
+
+repeat (({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) /\ ({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y}));
+
+(({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) /\ ({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y})) after (-({Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x}) \/ -({Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y}));
