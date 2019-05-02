@@ -1,0 +1,202 @@
+/* Grid with robots mapping the environment */
+
+// Parameters
+// Grid size
+const N : nat is 7
+// Number of robots
+const C : nat is 2
+// Number of boxes
+const M : nat is 2
+
+
+// Grid index limit
+const L : nat is N-1 
+// Grid index type
+type posIndex is 0..L
+// Robot index type
+type rIndex is 0..(C-1)
+// Box index type
+type cIndex is 0..(M-1)
+// Robot position type
+type pos is record x : posIndex, y : posIndex end
+// Robot movement grid
+type grid is record x : posIndex, y : posIndex, w : posIndex, h : posIndex end
+// Initial robot positions
+const RP : array C of pos is [  {x = 5, y = 1}, 
+                                {x = 3, y = 0}]
+// Initial box position
+const CP : array M of pos is [  {x = 1, y = 1}, 
+                                {x = 1, y = 6}]
+// Box final position
+const CF : array M of pos is [  {x = 5 , y = 5}, 
+                                {x = 6 , y = 6}]
+// Grid
+const GR : grid is {x = 1, y = 1, w = 5, h = 5 }                                                            
+
+process Robot(&G : read write array N of array N of nat, &X : read write array N of array N of nat, &R : read write array C of pos, i : rIndex) is
+    states move, final
+
+    var inside : nat := 0
+
+    from move select
+        //Mutual exclusion
+           on   R[i].x > 0 and G[ R[i].y ][ R[i].x - 1 ] = 0;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x - 1 ] := 1; 
+                R[i].x := R[i].x - 1; 
+                X[1][1] := 0;
+                to move 
+        [] on   R[i].x < L and G[ R[i].y ][ R[i].x + 1 ] = 0; 
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x + 1 ] := 1; 
+                R[i].x := R[i].x + 1; 
+                to move 
+        [] on   R[i].y > 0 and G[ R[i].y - 1 ][ R[i].x ] = 0; 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y - 1 ][ R[i].x ] := 1; 
+                R[i].y := R[i].y - 1; 
+                to move 
+        [] on   R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0; 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y + 1 ][ R[i].x ] := 1; 
+                R[i].y := R[i].y + 1; 
+                to move 
+        //Box movement
+        [] on   G[ CF[0].y ][ CF[0].x ] = 2 and G[ CF[1].y ][ CF[1].x ] = 2;
+                to final 
+        [] on   R[i].x > 1 and G[ R[i].y ][ R[i].x - 1 ] = 2 and G[ R[i].y ][ R[i].x - 2 ] = 0 and X[ R[i].y ][ R[i].x - 2 ] = i;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x - 1 ] := 1;
+                G[ R[i].y ][ R[i].x - 2 ] := 2;  
+                if ( (R[i].y) >= GR.y and (R[i].y) <= (GR.y + GR.h - 1) and (R[i].x - 2) >= GR.x and (R[i].x - 2) <= (GR.x + GR.w - 1) ) then
+                    inside := inside + 1
+                end;
+                R[i].x := R[i].x - 1;
+                to move
+        [] on   R[i].x < (L - 1) and G[ R[i].y ][ R[i].x + 1 ] = 2 and G[ R[i].y ][ R[i].x + 2 ] = 0 and X[ R[i].y ][ R[i].x + 2 ] = i;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x + 1 ] := 1;
+                G[ R[i].y ][ R[i].x + 2 ] := 2; 
+                if ( (R[i].y) >= GR.y and (R[i].y) <= (GR.y + GR.h - 1) and (R[i].x + 2) >= GR.x and (R[i].x + 2) <= (GR.x + GR.w - 1) ) then
+                    inside := inside + 1
+                end;
+                R[i].x := R[i].x + 1; 
+                to move        
+        [] on   R[i].y > 1 and G[ R[i].y - 1 ][ R[i].x ] = 2 and G[ R[i].y - 2 ][ R[i].x ] = 0 and X[ R[i].y - 2 ][ R[i].x ] = i;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y - 1 ][ R[i].x ] := 1;
+                G[ R[i].y - 2 ][ R[i].x ] := 2; 
+                if ( (R[i].y - 2) >= GR.y and (R[i].y - 2) <= (GR.y + GR.h - 1) and (R[i].x) >= GR.x and (R[i].x) <= (GR.x + GR.w - 1) ) then
+                    inside := inside + 1
+                end;
+                R[i].y := R[i].y - 1; 
+                to move
+        [] on   R[i].y < (L - 1) and G[ R[i].y + 1 ][ R[i].x ] = 2 and G[ R[i].y + 2 ][ R[i].x ] = 0 and X[ R[i].y + 2 ][ R[i].x ] = i;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y + 1 ][ R[i].x ] := 1;
+                G[ R[i].y + 2 ][ R[i].x ] := 2; 
+                if ( (R[i].y + 2) >= GR.y and (R[i].y + 2) <= (GR.y + GR.h - 1) and (R[i].x) >= GR.x and (R[i].x) <= (GR.x + GR.w - 1) ) then
+                    inside := inside + 1
+                end;
+                 R[i].y := R[i].y + 1; 
+                to move        
+    end
+
+
+component Mapping is
+    var r : rIndex := 0, // Robots counter
+        c : cIndex := 0, // Box counter
+        i : posIndex := 0, // Lines counter
+        j : posIndex := 0, // Collumns counter
+        R : array C of pos := RP, // List of robots
+        G : array N of array N of nat, // Grid of exclusion
+        y : posIndex := 0, // Lines counter
+        x : posIndex := 0, // Collumns counter
+        Q : array N of array N of nat
+    
+    init 
+        foreach i do 
+            foreach j do
+                G[i][j] := 0
+            end
+        end;
+        foreach r do
+            G[ R[r].y ][ R[r].x ] := 1
+        end;
+        foreach c do
+            G[ CP[c].y ][ CP[c].x ] := 2
+        end;
+        foreach y do 
+            foreach x do
+                // Algorithm: Steps 0, 1 and 2
+                if ( y >= GR.y and y <= (GR.y + GR.h - 1) and x >= GR.x and x <= (GR.x + GR.w - 1) ) then // faz com que x e y estejam dentro do grid
+                    if ((y <= GR.y and y <= 0 ) or (y >= (GR.y + GR.h - 1) and (GR.y + GR.h - 1) >= L )) then
+                        Q[y][x] := 8 
+                    else
+                        if ((x <= GR.x and x <= 0) or (x >= (GR.x + GR.w - 1) and (GR.x + GR.w - 1) >= L )) then
+                            Q[y][x] := 8
+                        else
+                            Q[y][x] := 0
+                        end 
+                    end
+                else 
+                    if (y <= 0 or y > (L - 1)) then
+                        Q[y][x] := 9
+                    else
+                        if (x <= 0 or x > (L - 1)) then
+                            Q[y][x] := 9
+                        else
+                            Q[y][x] := 1
+                        end 
+                    end
+                end
+            end
+        end;
+        foreach c do
+            if ( CF[c].y >= GR.y and CF[c].y <= (GR.y + GR.h - 1) and CF[c].x >= GR.x and CF[c].x <= (GR.x + GR.w - 1) ) then
+                // Algorithm: Step 3 and 4
+                if (CF[c].x <= GR.x or CF[c].x >= (GR.x + GR.w - 1)) then
+                    foreach y do
+                        if (y >= GR.y and y < (GR.y + GR.h) and y > 0 and y < L) then
+                            Q[y][ CF[c].x ] := 0
+                        end 
+                    end
+                end;
+                // Algorithm: Step 5 and 6
+                if (CF[c].y <= GR.y or CF[c].y >= (GR.y + GR.h - 1)) then
+                    foreach x do
+                        if (x >= GR.x and x < (GR.x + GR.w) and x > 0 and x < L) then
+                            Q[ CF[c].y ][x] := 0
+                        end 
+                    end
+                end;
+                // Algorithm: Step 7
+                Q[ CF[c].y ][ CF[c].x ] := 0
+            else
+                // Algorithm: Step 3 and 4
+                if ((CF[c].x <= 0 and GR.x > 0) or (CF[c].x >= L and (GR.x + GR.w - 1) < L)) then
+                    foreach y do
+                        if (y > 0 and y < L) then
+                            Q[y][ CF[c].x ] := 1
+                        end 
+                    end
+                end;
+                // Algorithm: Step 5 and 6
+                if ((CF[c].y <= 0 and GR.y > 0) or (CF[c].y >= L and (GR.y + GR.h - 1) < L)) then
+                    foreach x do
+                        if (x > 0 and x < L) then
+                            Q[ CF[c].y ][x] := 1
+                        end 
+                    end
+                end;
+                // Algorithm: Step 7
+                Q[ CF[c].y ][ CF[c].x ] := 1
+            end
+        end
+
+    par 
+            Robot (&G, &Q, &R, 0)
+        ||  Robot (&G, &Q, &R, 1) 
+    end
+
+Mapping

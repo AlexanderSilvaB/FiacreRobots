@@ -13,4 +13,3 @@ Mapping_1_vM notGreater 4;
 ( {Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x} /\ {Mapping_1_vR.at[1].x} = {Mapping_1_vP.at[1].x} ) notBackI ( {Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y} /\ {Mapping_1_vR.at[1].y} = {Mapping_1_vP.at[1].y});
 
 
-
