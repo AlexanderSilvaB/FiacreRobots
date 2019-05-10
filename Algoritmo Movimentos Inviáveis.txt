@@ -1,0 +1,10 @@
+Algoritmo ClaudinhoChicote
+    0) Todo o grid se inicia desbloqueado
+    1) Bloqueia a primeira e última coluna
+    2) Bloqueia a primeira e a última linha
+    3) Se existe uma caixa na primeira coluna, libera todos os elementos desta coluna que não são extremidades
+    4) Se existe uma caixa na última coluna, libera todos os elementos desta coluna que não são extremidades
+    5) Se existe uma caixa na primeira linha, libera todos os elementos desta linha que não são extremidades
+    6) Se existe uma caixa na última linha, libera todos os elementos desta linha que não são extremidades
+    7) Libera todos os elementos onde existem caixas
+    

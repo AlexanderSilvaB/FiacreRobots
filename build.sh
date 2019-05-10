@@ -13,4 +13,4 @@ frac ${project}.fcr ${project}.tts
 make -f ${FIACREPATH}/Makefile ${project}
 tina ${project}.tts ${project}.ktz
 #tina -d ${project}.tts
-selt ${project}.ktz ${project}.ltl -q -b -S ${project}.log
+selt ${project}.ktz ${project}.ltl -q -b -S ${project}.scn

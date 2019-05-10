@@ -19,7 +19,7 @@ type pos is record x : posIndex, y : posIndex end
 const RP : array C of pos is [  {x = 1, y = 0}, 
                                 {x = 0, y = 1}]
 
-process Robot(&G : read write array N of array N of nat, &R : read write array C of pos, i : rIndex) is
+process RobotMutex(&G : read write array N of array N of nat, &R : read write array C of pos, i : rIndex) is
     states move
 
     from move select
@@ -29,7 +29,7 @@ process Robot(&G : read write array N of array N of nat, &R : read write array C
         [] on R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y + 1 ][ R[i].x ] := 1; R[i].y := R[i].y + 1; to move 
     end
 
-process RobotM(&G : array N of array N of nat, &V : array N of array N of nat, &M : nat, &R : array C of pos, i : rIndex) is
+process RobotMapping(&G : array N of array N of nat, &V : array N of array N of nat, &M : nat, &R : array C of pos, i : rIndex) is
     states move
 
     from move select
@@ -39,7 +39,7 @@ process RobotM(&G : array N of array N of nat, &V : array N of array N of nat, &
         [] on R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0 and V[ R[i].y + 1 ][ R[i].x ] = 0; G[ R[i].y ][ R[i].x ] := 0; G[ R[i].y + 1 ][ R[i].x ] := 1; V[ R[i].y + 1 ][ R[i].x ] := 1; R[i].y := R[i].y + 1; M := M + 1; to move 
     end
 
-process RobotBV(&G : array N of array N of nat, &P : array C of pos, &R : array C of pos, i : rIndex) is
+process RobotBlockBack(&G : array N of array N of nat, &P : array C of pos, &R : array C of pos, i : rIndex) is
     states move
 
     from move select
@@ -70,7 +70,7 @@ process RobotBV(&G : array N of array N of nat, &P : array C of pos, &R : array 
     end
 
 
-component Mapping is
+component Grid2x2 is
     var r : rIndex := 0, // Robots counter
         i : posIndex := 0, // Lines counter
         j : posIndex := 0, // Collumns counter
@@ -94,15 +94,15 @@ component Mapping is
 
     par 
         /*
-            Robot (&G, &R, 0)
-        ||  Robot (&G, &R, 1) 
+            RobotMutex (&G, &R, 0)
+        ||  RobotMutex (&G, &R, 1) 
         */
         /*
-            RobotM (&G, &V, &M, &R, 0)
-        ||  RobotM (&G, &V, &M, &R, 1) 
+            RobotMapping (&G, &V, &M, &R, 0)
+        ||  RobotMapping (&G, &V, &M, &R, 1) 
         */
-            RobotBV (&G, &P, &R, 0)
-        ||  RobotBV (&G, &P, &R, 1)    
+            RobotBlockBack (&G, &P, &R, 0)
+        ||  RobotBlockBack (&G, &P, &R, 1)    
     end
 
-Mapping
+Grid2x2

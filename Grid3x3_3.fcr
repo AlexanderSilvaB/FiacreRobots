@@ -1,4 +1,4 @@
-/* Grid with robots mapping the environment */
+/* Grid with robots pushing boxes */
 
 // Parameters
 // Grid size
@@ -103,7 +103,7 @@ process Robot(&G : read write array N of array N of nat, &X : read write array N
     end
 
 
-component Mapping is
+component Grid3x3 is
     var r : rIndex := 0, // Robots counter
         c : cIndex := 0, // Box counter
         i : posIndex := 0, // Lines counter
@@ -199,4 +199,4 @@ component Mapping is
         ||  Robot (&G, &Q, &R, 1) 
     end
 
-Mapping
+Grid3x3
