@@ -1,0 +1,115 @@
+/* Grid with robots mapping the environment */
+
+// Parameters
+// Grid size
+const M : nat is 3
+// Number of robots
+const C : nat is 2
+// Number of boxes
+const B : nat is 2
+
+
+// Grid index limit
+const L : nat is M-1 
+// Grid index type
+type posIndex is 0..L
+// Robot index type
+type rIndex is 0..(C-1)
+// Box index type
+type cIndex is 0..(B-1)
+// Robot position type
+type pos is record x : posIndex, y : posIndex end
+// Initial robot positions
+const RP : array C of pos is [  {x = 0, y = 0}, 
+                                {x = 1, y = 0}]
+// Initial box position
+const CP : array B of pos is [  {x = 1, y = 1}, 
+                                {x = 1, y = 2}]
+// Box final position
+const CF : array B of pos is [  {x = 2, y = 0}, 
+                                {x = 0, y = 2}]
+                                                        
+
+process Robot(&G : read write array M of array M of nat, &R : read write array C of pos, i : rIndex) is
+    states move, final
+    
+    from move select
+        //Mutual exclusion
+           on   R[i].x > 0 and G[ R[i].y ][ R[i].x - 1 ] = 0;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x - 1 ] := 1; 
+                R[i].x := R[i].x - 1; 
+                to move 
+        [] on   R[i].x < L and G[ R[i].y ][ R[i].x + 1 ] = 0; 
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x + 1 ] := 1; 
+                R[i].x := R[i].x + 1; 
+                to move 
+        [] on   R[i].y > 0 and G[ R[i].y - 1 ][ R[i].x ] = 0; 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y - 1 ][ R[i].x ] := 1; 
+                R[i].y := R[i].y - 1; 
+                to move 
+        [] on   R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0; 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y + 1 ][ R[i].x ] := 1; 
+                R[i].y := R[i].y + 1; 
+                to move 
+
+        //Box movement
+        [] on   G[ CF[0].y ][ CF[0].x ] = 2 and G[ CF[1].y ][ CF[1].x ] = 2;
+                to final 
+        [] on   R[i].x > 1 and G[ R[i].y ][ R[i].x - 1 ] = 2 and G[ R[i].y ][ R[i].x - 2 ] = 0;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x - 1 ] := 1;
+                G[ R[i].y ][ R[i].x - 2 ] := 2; 
+                R[i].x := R[i].x - 1; 
+                to move
+        [] on   R[i].x < (L - 1) and G[ R[i].y ][ R[i].x + 1 ] = 2 and G[ R[i].y ][ R[i].x + 2 ] = 0;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y ][ R[i].x + 1 ] := 1;
+                G[ R[i].y ][ R[i].x + 2 ] := 2; 
+                R[i].x := R[i].x + 1; 
+                to move        
+        [] on   R[i].y > 1 and G[ R[i].y - 1 ][ R[i].x ] = 2 and G[ R[i].y - 2 ][ R[i].x ] = 0;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y - 1 ][ R[i].x ] := 1;
+                G[ R[i].y - 2 ][ R[i].x ] := 2; 
+                R[i].y := R[i].y - 1; 
+                to move
+        [] on   R[i].y < (L - 1) and G[ R[i].y + 1 ][ R[i].x ] = 2 and G[ R[i].y + 2 ][ R[i].x ] = 0;
+                G[ R[i].y ][ R[i].x ] := 0;
+                G[ R[i].y + 1 ][ R[i].x ] := 1;
+                G[ R[i].y + 2 ][ R[i].x ] := 2; 
+                R[i].y := R[i].y + 1; 
+                to move        
+
+    end
+
+
+component Grid3x3 is
+    var r : rIndex := 0, // Robots counter
+        c : cIndex := 0, // Box counter
+        i : posIndex := 0, // Lines counter
+        j : posIndex := 0, // Collumns counter
+        R : array C of pos := RP, // List of robots
+        G : array M of array M of nat // Grid of exclusion
+    
+    init 
+        foreach i do 
+            foreach j do
+                G[i][j] := 0
+            end
+        end;
+        foreach r do
+            G[ R[r].y ][ R[r].x ] := 1
+        end;
+        foreach c do
+            G[ CP[c].y ][ CP[c].x ] := 2
+        end
+    par 
+            Robot (&G, &R, 0)
+        ||  Robot (&G, &R, 1) 
+    end
+
+Grid3x3

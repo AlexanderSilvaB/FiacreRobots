@@ -11,3 +11,6 @@ mutex (( {Mapping_1_vR.at[0].x} = {Mapping_1_vR.at[1].x} ) /\ ( {Mapping_1_vR.at
 
 ; Caixa na area
 [] ( ( Robot_1_vinside <= 1) /\ ( Robot_2_vinside <= 1) );
+
+[] ( ( Robot_1_vinside >= 1 ) => [] ( Robot_1_voutside = 0 ) );
+[] ( ( Robot_2_voutside >= 1 ) => [] ( Robot_2_vinside = 0 ) );

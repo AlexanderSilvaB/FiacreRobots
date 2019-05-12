@@ -1,0 +1,76 @@
+/* Grid with robots mapping the environment */
+
+// Parameters
+// Grid size
+const M : nat is 2
+// Number of robots
+const C : nat is 2
+
+
+// Grid index limit
+const L : nat is M-1 
+// Grid index type
+type posIndex is 0..L
+// Robot index type
+type rIndex is 0..(C-1)
+// Robot position type
+type pos is record x : posIndex, y : posIndex end
+// Initial robot positions
+const RP : array C of pos is [  {x = 1, y = 0}, 
+                                {x = 0, y = 1}]
+
+process RobotBlockBack(&G : array M of array M of nat, &P : array C of pos, &R : array C of pos, i : rIndex) is
+    states move
+
+    from move select
+           on R[i].x > 0 and G[ R[i].y ][ R[i].x - 1 ] = 0 and ((R[i].x - 1) <> P[i].x or R[i].y <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y ][ R[i].x - 1 ] := 1;
+                P[i] := R[i];
+                R[i].x := R[i].x - 1;
+                to move 
+        [] on R[i].x < L and G[ R[i].y ][ R[i].x + 1 ] = 0 and ((R[i].x + 1) <> P[i].x or R[i].y <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y ][ R[i].x + 1 ] := 1; 
+                P[i] := R[i];
+                R[i].x := R[i].x + 1; 
+                to move 
+        [] on R[i].y > 0 and G[ R[i].y - 1 ][ R[i].x ] = 0 and (R[i].x <> P[i].x or (R[i].y - 1) <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y - 1 ][ R[i].x ] := 1; 
+                P[i] := R[i];
+                R[i].y := R[i].y - 1; 
+                to move 
+        [] on R[i].y < L and G[ R[i].y + 1 ][ R[i].x ] = 0 and (R[i].x <> P[i].x or (R[i].y + 1) <> P[i].y); 
+                G[ R[i].y ][ R[i].x ] := 0; 
+                G[ R[i].y + 1 ][ R[i].x ] := 1; 
+                P[i] := R[i];
+                R[i].y := R[i].y + 1; 
+                to move 
+    end
+
+
+component Grid2x2 is
+    var r : rIndex := 0, // Robots counter
+        i : posIndex := 0, // Lines counter
+        j : posIndex := 0, // Collumns counter
+        R : array C of pos := RP, // List of robots
+        G : array M of array M of nat, // Grid of exclusion
+        P : array C of pos := RP // List of robots in last event
+    
+    init 
+        foreach i do 
+            foreach j do
+                G[i][j] := 0
+            end
+        end;
+        foreach r do
+            G[ R[r].y ][ R[r].x ] := 1
+        end
+
+    par 
+            RobotBlockBack (&G, &P, &R, 0)
+        ||  RobotBlockBack (&G, &P, &R, 1)
+    end
+
+Grid2x2

@@ -1,0 +1,4 @@
+;output quiet; 
+infix x mutex y = [] - (x /\ y);
+
+( {Grid2x2_1_vR.at[0].x} = {Grid2x2_1_vR.at[1].x} ) mutex ( {Grid2x2_1_vR.at[0].y} = {Grid2x2_1_vR.at[1].y} );

@@ -12,5 +12,5 @@ rm ${project}.ktz
 frac ${project}.fcr ${project}.tts
 make -f ${FIACREPATH}/Makefile ${project}
 tina ${project}.tts ${project}.ktz
-#tina -d ${project}.tts
+tina -d ${project}.tts > a.txt
 selt ${project}.ktz ${project}.ltl -q -b -S ${project}.scn

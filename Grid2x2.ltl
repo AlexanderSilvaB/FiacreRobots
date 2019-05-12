@@ -1,15 +1,15 @@
 ;output quiet; 
 infix x mutex y = [] - (x /\ y);
 infix x notGreater y = [] - (x gt y);
-infix x notBackI y = ( () <> (x /\ y) );
+infix x notBackI y = [] - ( () <> (x /\ y) );
 infix x notBackII y = -( () <> (x = y) );
 
 
 [] - dead;
-( {Mapping_1_vR.at[0].x} = {Mapping_1_vR.at[1].x} ) mutex ( {Mapping_1_vR.at[0].y} = {Mapping_1_vR.at[1].y} );
+( {Grid2x2_1_vR.at[0].x} = {Grid2x2_1_vR.at[1].x} ) mutex ( {Grid2x2_1_vR.at[0].y} = {Grid2x2_1_vR.at[1].y} );
 
-Mapping_1_vM notGreater 4;
+Grid2x2_1_vM notGreater 4;
 
-( {Mapping_1_vR.at[0].x} = {Mapping_1_vP.at[0].x} /\ {Mapping_1_vR.at[1].x} = {Mapping_1_vP.at[1].x} ) notBackI ( {Mapping_1_vR.at[0].y} = {Mapping_1_vP.at[0].y} /\ {Mapping_1_vR.at[1].y} = {Mapping_1_vP.at[1].y});
+( {Grid2x2_1_vR.at[0].x} = {Grid2x2_1_vP.at[0].x} /\ {Grid2x2_1_vR.at[1].x} = {Grid2x2_1_vP.at[1].x} ) notBackI ( {Grid2x2_1_vR.at[0].y} = {Grid2x2_1_vP.at[0].y} /\ {Grid2x2_1_vR.at[1].y} = {Grid2x2_1_vP.at[1].y});
 
 

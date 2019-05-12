@@ -97,12 +97,13 @@ component Grid2x2 is
             RobotMutex (&G, &R, 0)
         ||  RobotMutex (&G, &R, 1) 
         */
-        /*
+        
             RobotMapping (&G, &V, &M, &R, 0)
         ||  RobotMapping (&G, &V, &M, &R, 1) 
-        */
+        
+       /*
             RobotBlockBack (&G, &P, &R, 0)
-        ||  RobotBlockBack (&G, &P, &R, 1)    
+        ||  RobotBlockBack (&G, &P, &R, 1)    */
     end
 
 Grid2x2

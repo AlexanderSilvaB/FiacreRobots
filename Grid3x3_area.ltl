@@ -1,0 +1,4 @@
+;output quiet; 
+
+[] ( ( Robot_1_vinside >= 1 ) => [] ( Robot_1_voutside = 0 ) );
+[] ( ( Robot_2_voutside >= 1 ) => [] ( Robot_2_vinside = 0 ) );
