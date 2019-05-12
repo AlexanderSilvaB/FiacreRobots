@@ -1,0 +1,3 @@
+;output quiet; 
+
+[] - (Grid2x2_1_vCV gt 4);

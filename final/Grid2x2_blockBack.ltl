@@ -1,0 +1,4 @@
+;output quiet; 
+infix x notBackI y = [] - ( () <> (x /\ y) );
+
+( {Grid2x2_1_vR.at[0].x} = {Grid2x2_1_vP.at[0].x} /\ {Grid2x2_1_vR.at[1].x} = {Grid2x2_1_vP.at[1].x} ) notBackI ( {Grid2x2_1_vR.at[0].y} = {Grid2x2_1_vP.at[0].y} /\ {Grid2x2_1_vR.at[1].y} = {Grid2x2_1_vP.at[1].y});

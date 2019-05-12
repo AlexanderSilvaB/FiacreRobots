@@ -1,0 +1,3 @@
+;output quiet;
+ 
+<> ( ((-({Grid3x3_1_vG.at[1].at[1]} = 2)) => ({Grid3x3_1_vG.at[1].at[1]} = 1)) );
